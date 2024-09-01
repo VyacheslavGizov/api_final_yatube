@@ -1,8 +1,12 @@
 from pathlib import Path
+import os
 
 from datetime import timedelta
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+MEDIA_URL = '/media/'  # добавил
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # добавил
 
 SECRET_KEY = 'hhz7l-ltdismtf@bzyz+rple7*s*w$jak%whj@(@u0eok^f9k4'
 
@@ -100,8 +104,11 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',  # возможно здесь будет PyJWT
-    ]
+    ],
+    # 'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',  # дефолтный пагинатор, по тз не было
+    # 'PAGE_SIZE': 10,
 }
+# добавить тротлинг
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=10),  # может подправить

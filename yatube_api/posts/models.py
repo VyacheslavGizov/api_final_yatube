@@ -40,7 +40,8 @@ class Post(models.Model):
     )
     image = models.ImageField(
         'Изображение',
-        upload_to='posts/',
+        # upload_to='posts/',
+        upload_to='posts/images/',
         null=True,
         blank=True
     )
@@ -107,8 +108,13 @@ class Follow(models.Model):
     )
 
     class Meta:
-        # Здесь будет валидация на уникальность полей: нельзя быть подписанным на себя
-        pass
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'following'],
+                name='unique_user_following'
+            ),
+            # добавить проверку на то, что пользователь не подписан сам на себя
+        ]
 
     def __str__(self):
         return (
