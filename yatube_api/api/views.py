@@ -3,6 +3,7 @@ from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework import mixins, viewsets
+from rest_framework import filters
 
 from .permissions import IsAuthorOrReadOnly
 from .serializers import CommentSerializer, GroupSerializer, PostSerializer, FollowSerializer
@@ -16,9 +17,7 @@ class PostViewSet(viewsets.ModelViewSet):
     serializer_class = PostSerializer
     permission_classes = (IsAuthenticatedOrReadOnly, IsAuthorOrReadOnly)
     pagination_class = LimitOffsetPagination
-    # фильтрация и сортировка по тз не заданы
-    # нужно добавить роутер
-
+    
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
@@ -54,9 +53,10 @@ class ListCreateVievSet(mixins.ListModelMixin, mixins.CreateModelMixin,
 class FollowViewSet(ListCreateVievSet):
     serializer_class = FollowSerializer
     permission_classes = (IsAuthenticated,)
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('following__username',)
 
     def get_queryset(self):
-        # return Follow.objects.filter(user__exact=self.request.user)
         return self.request.user.follower.all()
     
     def perform_create(self, serializer):
