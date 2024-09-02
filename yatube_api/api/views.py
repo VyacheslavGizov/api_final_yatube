@@ -31,7 +31,7 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     def get_post(self):
         return get_object_or_404(Post, pk=self.kwargs.get('post_id'))
-    
+
 
 class GroupViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Group.objects.all()
