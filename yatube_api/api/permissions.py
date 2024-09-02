@@ -3,7 +3,6 @@
 from rest_framework.permissions import BasePermission, SAFE_METHODS
 
 
-# NOT_AUTHOR_ERROR = 'Изменение чужого контента запрещено!'
 NOT_AUTHOR_ERROR = 'У вас недостаточно прав для выполнения данного действия.'
 
 

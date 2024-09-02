@@ -5,7 +5,6 @@ User = get_user_model()
 
 DESCRIPTION_LENGTH_LIMIT = 20
 
-# осознанно подправить методы __str__
 
 class Group(models.Model):
     title = models.CharField(
@@ -24,7 +23,11 @@ class Group(models.Model):
         verbose_name_plural = 'Сообщества'
 
     def __str__(self):
-        return self.title[:DESCRIPTION_LENGTH_LIMIT]
+        return (
+            f'{self.title[:DESCRIPTION_LENGTH_LIMIT]} | '
+            f'{self.description[:DESCRIPTION_LENGTH_LIMIT]} | '
+            f'{self.slug[:DESCRIPTION_LENGTH_LIMIT]} | '
+        )
 
 
 class Post(models.Model):
@@ -40,7 +43,6 @@ class Post(models.Model):
     )
     image = models.ImageField(
         'Изображение',
-        # upload_to='posts/',
         upload_to='posts/images/',
         null=True,
         blank=True
@@ -59,7 +61,12 @@ class Post(models.Model):
         default_related_name = 'posts'
 
     def __str__(self):
-        return self.text[:DESCRIPTION_LENGTH_LIMIT]
+        return (
+            f'{self.text[:DESCRIPTION_LENGTH_LIMIT]} | '
+            f'{self.group} | '
+            f'{self.author} | '
+            f'{self.pub_date} | '
+        )
 
 
 class Comment(models.Model):
@@ -111,9 +118,8 @@ class Follow(models.Model):
         constraints = [
             models.UniqueConstraint(
                 fields=['user', 'following'],
-                name='unique_user_following'
+                name='unique_following'
             ),
-            # добавить проверку на то, что пользователь не подписан сам на себя
         ]
 
     def __str__(self):

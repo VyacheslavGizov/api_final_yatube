@@ -1,13 +1,17 @@
 import base64
-from rest_framework.validators import UniqueTogetherValidator
+
+from django.core.files.base import ContentFile
 from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
-from django.core.files.base import ContentFile
+from rest_framework.validators import UniqueTogetherValidator
 
-from posts.models import Comment, Group, Post, Follow, User
+from posts.models import Comment, Follow, Group, Post, User
 
 
-# оптимизировать, может есть способ из коробки
+SUBSCRIBE_TO_YOURSELF_ERROR = 'Нельзя быть подписанным на себя!'
+REPEAT_FOLLOWING_ERRROR = 'Вы уже подписаны на данного автора!'
+
+
 class Base64ImageField(serializers.ImageField):
     def to_internal_value(self, data):
         if isinstance(data, str) and data.startswith('data:image'):
@@ -22,7 +26,7 @@ class PostSerializer(serializers.ModelSerializer):
     author = SlugRelatedField(
         slug_field='username',
         read_only=True,
-        default=serializers.CurrentUserDefault()  # Возможно не нужно
+        default=serializers.CurrentUserDefault()
     )
     image = Base64ImageField(required=False, allow_null=True)
 
@@ -32,12 +36,10 @@ class PostSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
-    """Сериализвтор для модели Comment."""
-
     author = serializers.SlugRelatedField(
         read_only=True,
         slug_field='username',
-        default=serializers.CurrentUserDefault()  # Возможно не нужно
+        default=serializers.CurrentUserDefault()
     )
 
     class Meta:
@@ -47,8 +49,6 @@ class CommentSerializer(serializers.ModelSerializer):
 
 
 class GroupSerializer(serializers.ModelSerializer):
-    """Сериализвтор для модели Group."""
-
     class Meta:
         model = Group
         fields = '__all__'
@@ -64,17 +64,19 @@ class FollowSerializer(serializers.ModelSerializer):
         slug_field='username',
         queryset=User.objects.all()
     )
-    
+
     def validate(self, data):
         if self.context['request'].user == data['following']:
-            raise serializers.ValidationError('Подписка на себя запрещена') # сообщение об ошибке вынести в константу
+            raise serializers.ValidationError(SUBSCRIBE_TO_YOURSELF_ERROR)
         return data
-        
+
     class Meta:
         model = Follow
         fields = '__all__'
-        # не уверен, что нужен
-        validators = [UniqueTogetherValidator(
-            queryset=Follow.objects.all(),
-            fields=['user', 'following'])]
-
+        validators = [
+            UniqueTogetherValidator(
+                queryset=Follow.objects.all(),
+                fields=['user', 'following'],
+                message=REPEAT_FOLLOWING_ERRROR
+            )
+        ]
