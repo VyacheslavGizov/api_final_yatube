@@ -30,7 +30,7 @@ class CommentViewSet(viewsets.ModelViewSet):
         serializer.save(author=self.request.user, post=self.get_post())
 
     def get_post(self):
-        return get_object_or_404(Post, pk=self.kwargs.get('post_id'))
+        return get_object_or_404(Post, pk=self.kwargs['post_id'])
 
 
 class GroupViewSet(viewsets.ReadOnlyModelViewSet):
